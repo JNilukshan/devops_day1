@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Website Test Suite</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .test-pass {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .test-fail {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .test-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #portfolio-frame {
+            width: 100%;
+            height: 600px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .summary {
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Portfolio Website Test Suite</h1>
+        <p>This test suite validates the functionality and structure of your portfolio website.</p>
+        
+        <div id="test-summary" class="summary"></div>
+        
+        <button onclick="runAllTests()">Run All Tests</button>
+        <button onclick="clearResults()">Clear Results</button>
+        <button onclick="loadPortfolio()">Load Portfolio</button>
+        
+        <div id="test-results"></div>
+    </div>
+
+    <div class="test-container">
+        <h2>Portfolio Website Preview</h2>
+        <iframe id="portfolio-frame" src="index.html" title="Portfolio Website"></iframe>
+    </div>
+
+    <script>
+        let testResults = [];
+        let totalTests = 0;
+        let passedTests = 0;
+
+        function addTestResult(testName, passed, message) {
+            totalTests++;
+            if (passed) passedTests++;
+            
+            testResults.push({
+                name: testName,
+                passed: passed,
+                message: message
+            });
+            
+            displayTestResult(testName, passed, message);
+        }
+
+        function displayTestResult(testName, passed, message) {
+            const resultsDiv = document.getElementById('test-results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `test-result ${passed ? 'test-pass' : 'test-fail'}`;
+            resultDiv.innerHTML = `
+                <strong>${testName}:</strong> ${passed ? 'PASS' : 'FAIL'}
+                <br><small>${message}</small>
+            `;
+            resultsDiv.appendChild(resultDiv);
+        }
+
+        function updateSummary() {
+            const summaryDiv = document.getElementById('test-summary');
+            const percentage = totalTests > 0 ? Math.round((passedTests / totalTests) * 100) : 0;
+            
+            summaryDiv.innerHTML = `
+                Tests: ${passedTests}/${totalTests} passed (${percentage}%)
+            `;
+            
+            if (percentage >= 90) {
+                summaryDiv.className = 'summary test-pass';
+            } else if (percentage >= 70) {
+                summaryDiv.className = 'summary test-info';
+            } else {
+                summaryDiv.className = 'summary test-fail';
+            }
+        }
+
+        function clearResults() {
+            document.getElementById('test-results').innerHTML = '';
+            testResults = [];
+            totalTests = 0;
+            passedTests = 0;
+            updateSummary();
+        }
+
+        function loadPortfolio() {
+            const frame = document.getElementById('portfolio-frame');
+            frame.src = 'index.html?' + new Date().getTime(); // Force reload
+        }
+
+        async function runAllTests() {
+            clearResults();
+            
+            // Test 1: Check if index.html exists and loads
+            await testFileExists();
+            
+            // Test 2: Check HTML structure
+            await testHTMLStructure();
+            
+            // Test 3: Check CSS file exists
+            await testCSSExists();
+            
+            // Test 4: Check JavaScript file exists
+            await testJSExists();
+            
+            // Test 5: Check navigation links
+            await testNavigationLinks();
+            
+            // Test 6: Check required sections
+            await testRequiredSections();
+            
+            // Test 7: Check meta tags
+            await testMetaTags();
+            
+            // Test 8: Check responsive viewport
+            await testViewport();
+            
+            // Test 9: Check project cards
+            await testProjectCards();
+            
+            // Test 10: Check contact information
+            await testContactInfo();
+            
+            updateSummary();
+        }
+
+        async function testFileExists() {
+            try {
+                const response = await fetch('index.html');
+                if (response.ok) {
+                    addTestResult('File Existence', true, 'index.html loads successfully');
+                } else {
+                    addTestResult('File Existence', false, `HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                addTestResult('File Existence', false, `Error loading index.html: ${error.message}`);
+            }
+        }
+
+        async function testCSSExists() {
+            try {
+                const response = await fetch('css/styles.css');
+                if (response.ok) {
+                    addTestResult('CSS File', true, 'styles.css loads successfully');
+                } else {
+                    addTestResult('CSS File', false, `CSS file not found: HTTP ${response.status}`);
+                }
+            } catch (error) {
+                addTestResult('CSS File', false, `Error loading CSS: ${error.message}`);
+            }
+        }
+
+        async function testJSExists() {
+            try {
+                const response = await fetch('js/script.js');
+                if (response.ok) {
+                    addTestResult('JavaScript File', true, 'script.js loads successfully');
+                } else {
+                    addTestResult('JavaScript File', false, `JS file not found: HTTP ${response.status}`);
+                }
+            } catch (error) {
+                addTestResult('JavaScript File', false, `Error loading JS: ${error.message}`);
+            }
+        }
+
+        async function testHTMLStructure() {
+            try {
+                const response = await fetch('index.html');
+                const html = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                
+                const hasDoctype = html.trim().toLowerCase().startsWith('<!doctype html>');
+                const hasHtml = doc.querySelector('html') !== null;
+                const hasHead = doc.querySelector('head') !== null;
+                const hasBody = doc.querySelector('body') !== null;
+                const hasTitle = doc.querySelector('title') !== null;
+                
+                if (hasDoctype && hasHtml && hasHead && hasBody && hasTitle) {
+                    addTestResult('HTML Structure', true, 'Valid HTML5 structure detected');
+                } else {
+                    addTestResult('HTML Structure', false, 'Missing required HTML elements');
+                }
+            } catch (error) {
+                addTestResult('HTML Structure', false, `Error parsing HTML: ${error.message}`);
+            }
+        }
+
+        async function testNavigationLinks() {
+            try {
+                const response = await fetch('index.html');
+                const html = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                
+                const navLinks = doc.querySelectorAll('.nav-links a');
+                const expectedLinks = ['#home', '#about', '#projects', '#contact'];
+                
+                if (navLinks.length >= expectedLinks.length) {
+                    const linkHrefs = Array.from(navLinks).map(link => link.getAttribute('href'));
+                    const hasAllLinks = expectedLinks.every(link => linkHrefs.includes(link));
+                    
+                    if (hasAllLinks) {
+                        addTestResult('Navigation Links', true, `Found ${navLinks.length} navigation links`);
+                    } else {
+                        addTestResult('Navigation Links', false, 'Missing some expected navigation links');
+                    }
+                } else {
+                    addTestResult('Navigation Links', false, `Only found ${navLinks.length} navigation links, expected ${expectedLinks.length}`);
+                }
+            } catch (error) {
+                addTestResult('Navigation Links', false, `Error checking navigation: ${error.message}`);
+            }
+        }
+
+        async function testRequiredSections() {
+            try {
+                const response = await fetch('index.html');
+                const html = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                
+                const requiredSections = ['home', 'about', 'projects', 'contact'];
+                const foundSections = [];
+                
+                requiredSections.forEach(sectionId => {
+                    if (doc.getElementById(sectionId)) {
+                        foundSections.push(sectionId);
+                    }
+                });
+                
+                if (foundSections.length === requiredSections.length) {
+                    addTestResult('Required Sections', true, `All ${requiredSections.length} sections found`);
+                } else {
+                    addTestResult('Required Sections', false, `Missing sections: ${requiredSections.filter(s => !foundSections.includes(s)).join(', ')}`);
+                }
+            } catch (error) {
+                addTestResult('Required Sections', false, `Error checking sections: ${error.message}`);
+            }
+        }
+
+        async function testMetaTags() {
+            try {
+                const response = await fetch('index.html');
+                const html = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                
+                const charset = doc.querySelector('meta[charset]');
+                const viewport = doc.querySelector('meta[name="viewport"]');
+                const title = doc.querySelector('title');
+                
+                if (charset && viewport && title) {
+                    addTestResult('Meta Tags', true, 'Essential meta tags found');
+                } else {
+                    addTestResult('Meta Tags', false, 'Missing essential meta tags');
+                }
+            } catch (error) {
+                addTestResult('Meta Tags', false, `Error checking meta tags: ${error.message}`);
+            }
+        }
+
+        async function testViewport() {
+            try {
+                const response = await fetch('index.html');
+                const html = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                
+                const viewport = doc.querySelector('meta[name="viewport"]');
+                if (viewport) {
+                    const content = viewport.getAttribute('content');
+                    if (content && content.includes('width=device-width')) {
+                        addTestResult('Responsive Viewport', true, 'Responsive viewport meta tag configured');
+                    } else {
+                        addTestResult('Responsive Viewport', false, 'Viewport meta tag missing responsive settings');
+                    }
+                } else {
+                    addTestResult('Responsive Viewport', false, 'No viewport meta tag found');
+                }
+            } catch (error) {
+                addTestResult('Responsive Viewport', false, `Error checking viewport: ${error.message}`);
+            }
+        }
+
+        async function testProjectCards() {
+            try {
+                const response = await fetch('index.html');
+                const html = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                
+                const projectCards = doc.querySelectorAll('.project-card');
+                if (projectCards.length >= 2) {
+                    addTestResult('Project Cards', true, `Found ${projectCards.length} project cards`);
+                } else {
+                    addTestResult('Project Cards', false, `Only found ${projectCards.length} project cards, expected at least 2`);
+                }
+            } catch (error) {
+                addTestResult('Project Cards', false, `Error checking project cards: ${error.message}`);
+            }
+        }
+
+        async function testContactInfo() {
+            try {
+                const response = await fetch('index.html');
+                const html = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                
+                const contactSection = doc.getElementById('contact');
+                if (contactSection) {
+                    const hasEmail = contactSection.innerHTML.toLowerCase().includes('email');
+                    const hasPhone = contactSection.innerHTML.toLowerCase().includes('phone');
+                    
+                    if (hasEmail && hasPhone) {
+                        addTestResult('Contact Information', true, 'Email and phone information found');
+                    } else {
+                        addTestResult('Contact Information', false, 'Missing email or phone information');
+                    }
+                } else {
+                    addTestResult('Contact Information', false, 'Contact section not found');
+                }
+            } catch (error) {
+                addTestResult('Contact Information', false, `Error checking contact info: ${error.message}`);
+            }
+        }
+
+        // Auto-load the portfolio on page load
+        window.addEventListener('load', () => {
+            loadPortfolio();
+        });
+    </script>
+</body>
+</html>
